@@ -1,1 +1,84 @@
+<?php
+
+function my_module_menu() {
+  $items['my-module'] = array(
+    'title' => t('Hello World'),
+    'page callback' => 'my_module_hello_world',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['my-module/%'] = array(
+    'title' => t('Hello World'),
+    'page callback' => 'my_module_hello_world',
+    'page arguments' => array(1),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['admin/config/development/my-module'] = array(
+    'title' => t('Hello World Settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('my_module_settings'),
+    'access arguments' => array('administer site configuration'),
+    'weight' => 10,
+  );
+  return $items;
+}
  
+function my_module_hello_world($name = NULL) {
+  if (isset($name)) {
+    return t('Hello ') . $name;
+  }
+  else {
+    return variable_get('hello_world_message', t('Hello World!'));
+  }
+}
+
+function my_module_block_info() {
+  $blocks['hello_world'] = array(
+    'info' => t('Hello World'),
+  );
+  $blocks['hello_all'] = array(
+    'info' => t('Hello All'),
+  );
+  return $blocks;
+}
+
+function my_module_block_view($delta = '') {
+ switch ($delta) {
+   case 'hello_world':
+     $block['subject'] = t('Hello World!');
+     $block['content'] = my_module_content();
+     break;
+   case 'hello_all':
+     $list = Array(
+       'title' => t('All my Work'),
+       'type' => 'ul',
+       'items' => Array(
+         my_module_content($delta),
+         my_module_hello_world(),
+       )
+     );
+     $block['subject'] = t('Hello All');
+     $block['content'] = theme_item_list($list);
+     break;
+ }
+ return $block;
+}
+
+function my_module_content() {
+  $date = date('d-m-Y h:i:s a');
+  $default = t('This block was created at %time', array('%time' => $date));
+  $hello_world = variable_get('hello_world_message', $default);
+  $renderable_array = array('#markup' => $hello_world);
+  return $renderable_array;
+}
+
+function my_module_settings() {
+  $form['block']['hello_world_message'] = array(
+    '#title' => t('Hello World Message'),
+    '#description' => t('The welcome message to be displayed.'),
+    '#type' => 'textfield',
+    '#default_value' => variable_get('hello_world_message', 'Hello World'),
+  );
+  return system_settings_form($form);
+} 
