@@ -54,7 +54,7 @@ function my_module_block_view($delta = '') {
        'title' => t('All my Work'),
        'type' => 'ul',
        'items' => Array(
-         my_module_content($delta),
+         render(my_module_content()),
          my_module_hello_world(),
        )
      );
